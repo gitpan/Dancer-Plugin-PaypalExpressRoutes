@@ -7,7 +7,7 @@ use Business::PayPal::API::ExpressCheckout;
 
 use strict;
 
-  our $VERSION = '0.10';
+  our $VERSION = '0.11';
 
   my $settings = plugin_setting() || undef;
 
@@ -148,7 +148,11 @@ register_plugin;
 
 =head1 NAME 
 
-Dancer::Plugin::PaypalExpressRoutes
+         Dancer::Plugin::PaypalExpressRoutes
+         
+=head1 VERSION
+  
+  Version 0.11, March 2014
 
 =head1 DESCRIPTION
 
@@ -161,94 +165,97 @@ in hashes from Paypal for possible use on a receipt page or logging.
 
 Your config.yml would contain something like this:
 
-plugins:
-       PaypalExpressRoutes:
-         pp_id: xxx
-         pp_password: xxx
-         pp_signature: xxx
-         pp_returnurl: http://mysite.tld/paypalgetrequest
-         pp_cancelurl: http://mysite.tld
+	  plugins:
+			PaypalExpressRoutes:
+			  pp_id: xxx
+			  pp_password: xxx
+			  pp_signature: xxx
+			  pp_returnurl: http://mysite.tld/paypalgetrequest
+			  pp_cancelurl: http://mysite.tld
 
 =head1 FUNCTIONS
 
 Your site.pm would include:
 
-use Dancer::Plugin::PaypalExpressRoutes;
+	use Dancer::Plugin::PaypalExpressRoutes;
 
 and the following routes:
 
-post '/paypalsetrequest' => sub {
-	$pptotal = params->{'total_cost'}; # or your method
-	ppsetrequest( $pptotal );
-};
+    post '/paypalsetrequest' => sub {
+	     $pptotal = params->{'total_cost'}; # or your method
+	     ppsetrequest( $pptotal );
+     };
 
 This will transfer the customer to the Paypal site. When he hits the 'confirm'
 button, Paypal will invoke the configured return url which will invoke the 
 next route:
 
-get '/paypalgetrequest' => sub {
+    get '/paypalgetrequest' => sub {
        ppgetrequest(); 
 	   return redirect '/paypalcheckout'; # or your preferred page
-};
+     };
 
 The paypalcheckout page should include whatever data you want the customer to
 see before finalising the order. Optionally you may populate the page with 
 the details hash returned from the previous request, eg [% details.FirstName %]
 and so on, as found in the ppgetrequest() sub above.
 
-get '/paypalcheckout' => sub {
+     get '/paypalcheckout' => sub {
        template 'checkout/paypalcheckout', {
     	   $details = getppdetails(), # customer details
 		   # order details
 		  }
-};
+      };
 
 The 'finalise order' button should then invoke the following route:
 
-post '/paypaldorequest' => sub  {
+    post '/paypaldorequest' => sub  {
 	
-	my $ok = ppdorequest( $pp_order_total );
+		my $ok = ppdorequest( $pp_order_total );
 
-    if ($ok eq 'success') {
-    # complete order process
-    return  redirect  '/paypalreceipt'; 
+		if ($ok eq 'success') {
+		# complete order process
+		return  redirect  '/paypalreceipt'; 
+			}
+		else {
+		  # some sort of error message or page
 		}
-	else {
-	  # some sort of error message or page
-	}
-	
-	return redirect '/checkout' if ! $ppresult{Token};
+		
+		return redirect '/checkout' if ! $ppresult{Token};
                                            
-};
+	};
 
 And this then invokes the final route to display the receipt:
 
-get '/paypalreceipt' => sub {
+     get '/paypalreceipt' => sub {
 	    return template 'checkout/paypalreceipt', {
     	   $details = getppdetails(), # customer details
 		   # other details to display
 		   }
-};
+     };
 
 =head1 CONVENIENCE FUNCTIONS
 
-getppdetails() will access all customer data returned in the details hash 
+	getppdetails(); 
+	
+will access all customer data returned in the details hash 
 from the 'ppgetrequest' upon the customer returning from Paypal
 
-getppresult() will access all the transaction data in the results hash returned 
+	getppresult(); 
+	
+will access all the transaction data in the results hash returned 
 from the 'ppdorequest' finalising the transaction.
 
 =head1 AUTHOR
 
-Lyn St George, lyn@zolotek.net, January 2014
+Lyn St George, lyn@zolotek.net
 
 =head1 LICENCE AND COPYRIGHT
 
 Copyright Lyn St George
 
-This program is free software; you can redistribute it and/or modify it
-under the terms of either: the GNU General Public Licence as published
-by the Free Software Foundation; or the Artistic Licence.
+This module is free software and is published under the same
+terms as Perl itself.
 
 See http://dev.perl.org/licenses/ for more information.
 

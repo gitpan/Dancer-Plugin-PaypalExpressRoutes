@@ -22,4 +22,4 @@ requires:
   Dancer: 1.300
   Dancer::Plugin: 1.300
   Dancer::Plugin::Database: 2.08
-version: 0.10
+version: 0.11
