@@ -7,7 +7,7 @@ use Business::PayPal::API::ExpressCheckout;
 
 use strict;
 
-  our $VERSION = '0.11';
+  our $VERSION = '0.12';
 
   my $settings = plugin_setting() || undef;
 
@@ -152,7 +152,11 @@ register_plugin;
          
 =head1 VERSION
   
-  Version 0.11, March 2014
+  Version 0.12, April 2014
+  
+=head1 CHANGES
+
+  v 0.12: updated installation files
 
 =head1 DESCRIPTION
 
